@@ -61,10 +61,11 @@ AC_ARG_WITH(
         [MPIPATH=$withval], [MPIPATH=""])
 
 AC_ARG_WITH(
-	[hdf5path],
-	[AC_HELP_STRING([--with-hdf5path],
-	[path to HDF5 installation [default=""]])],
-	[HDF5PATH=$withval], [HDF5PATH=""])
+  [hdf5],
+  [AS_HELP_STRING([--with-hdf5], [path to hdf5 (default /usr)])],
+  [use_hdf5=${withval}],
+  [use_hdf5=default]
+)
 
 ###############################################################################
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
@@ -453,55 +454,20 @@ fi
 ######################### PATH CHECKING & SETTING #############################
 ###############################################################################
 
-AC_MSG_CHECKING([for HDF5 root ])
-AC_MSG_RESULT([])
-if test -n "${HDF5ROOT}"; then
-    P=${HDF5ROOT}
-elif test -n "${HDF5HOME}" ; then
-    P=${HDF5HOME}
-elif test -n "${HDF5PATH}" ; then
-    P=${HDF5PATH}
-else
-    P=''
-    P="$P /usr"
-    P="$P /usr/local"
-    P="$P /usr/local/hdf5"
-    P="$P /usr/local/packages/hdf5"
-    P="$P /apps/hdf5"
+dnl if they gave us a path to HDF5, use it.
+# We assume that the given hdf5 directory has 'include' and 'lib'
+# subdirectories.
+AS_IF([test "x${use_hdf5}" != xdefault],
+  [CFLAGS="-I${use_hdf5}/include ${CFLAGS}"
+   LDFLAGS="-L${use_hdf5}/lib"]
+)
 
-    if test "X$USE_PARALLEL" = "Xyes"; then
-        P="$P /usr/local/phdf5"
-        P="$P /usr/local/hdf5/hdf5_par"
-        if test "X$USE_64" = "Xyes"; then
-            P="$P /usr/common/usg/hdf5/64/default/parallel"
-        else
-            P="$P /usr/common/usg/hdf5/32/default/parallel"
-        fi
-    else
-        P="$P /usr/local/hdf5/hdf5_serial"
-        if test "X$USE_64" = "Xyes"; then
-            P="$P /usr/common/usg/hdf5/64/default/serial"
-        else
-            P="$P /usr/common/usg/hdf5/32/default/serial"
-        fi
-    fi
-fi
-PATH_Search HDF5ROOT "$P" include/hdf5.h
-if test -z "$HDF5ROOT"; then
-    AC_MSG_ERROR([Cannot determine HDF5 root!!!])
-    exit 1
-fi
-
-AC_MSG_CHECKING([if we need to link to libsz ])
-if test -n "$HDF5ROOT"; then
-    if test -f $HDF5ROOT/lib/libsz.a; then
-	AC_MSG_RESULT([yes])
-        SZLIB="-L$HDF5ROOT/lib/ -lsz"
-    else
-	AC_MSG_RESULT([no])
-        SZLIB=""
-    fi
-fi
+AC_CHECK_LIB([hdf5], [H5open],
+  [AC_SUBST([LIBHDF5], "-lhdf5")
+   AC_DEFINE([HAVE_LIBHDF5], [1], [Define if you have HDF5])
+   LIBS="-lhdf5 ${LIBS}"],
+  [AC_MSG_FAILURE([HDF5 is *required* for H5Part!])],
+)
 
 AC_MSG_CHECKING([for static zlib root ])
 echo
