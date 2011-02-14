@@ -1,18 +1,17 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
 AC_INIT([H5Part], [1.6.2], [h5part@lists.psi.ch], H5Part)
+AC_PREREQ(2.60)
 
-
-# Ensure that a recent enough version of Autoconf is being used. 
-# If the version of Autoconf being used to create configure is earlier than version, 
-# print an error message to the standard error output and do not create configure.
-#AC_PREREQ(2.59)
-
+AC_USE_SYSTEM_EXTENSIONS
 
 # should be called right after AC_INIT.
 # configure scripts can create a C header file containing `#define' directives. 
 # The AC_CONFIG_HEADERS macro selects this kind of output.
 AC_CONFIG_HEADER(config.h)
+
+AC_CONFIG_MACRO_DIR([m4])
+LT_INIT([shared pic-only])
 
 ###############################################################################
 ################# --enable-xxx and --with-xxx Argument ########################

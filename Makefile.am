@@ -1,5 +1,4 @@
-# Trial by Antino Kim
-# Top level Makefile.am
+ACLOCAL_AMFLAGS=-I m4
 
 SUBDIRS = \
 	doc \
