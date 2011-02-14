@@ -67,24 +67,6 @@ AC_ARG_WITH(
 )
 
 ###############################################################################
-################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
-###############################################################################
-
-SAVE_CC=$CC
-SAVE_CXX=$CXX
-SAVE_FC=$FC
-SAVE_MPICC=$MPICC
-SAVE_MPICXX=$MPICXX
-SAVE_MPIFC=$MPIFC
-SAVE_MPILIB=$MPILIB
-SAVE_MPIINC=$MPIINC
-SAVE_CFLAGS=$CFLAGS
-SAVE_FFLAGS=$FFLAGS
-SAVE_MPIROOT=$MPIROOT
-SAVE_HDF5ROOT=$HDF5ROOT
-SAVE_LDFLAGS=$LDFLAGS
-
-###############################################################################
 ############### PATH SERACH FUNCTION - to be used later... ####################
 ###############################################################################
 # /*@@
@@ -488,59 +470,6 @@ H5P_LIB_LOC=`pwd`/src
 ###############################################################################
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
 ###############################################################################
-
-#if there was an external input for the variable...
-if test -n "$SAVE_CC"; then
-CC=$SAVE_CC
-fi
-
-if test -n "$SAVE_CXX"; then
-CXX=$SAVE_CXX
-fi
-
-if test -n "$SAVE_FC"; then
-FC=$SAVE_FC
-fi
-
-if test -n "$SAVE_MPICC"; then
-MPICC=$SAVE_MPICC
-fi
-
-if test -n "$SAVE_MPICXX"; then
-MPICXX=$SAVE_MPICXX
-fi
-
-if test -n "$SAVE_MPIFC"; then
-MPIFC=$SAVE_MPIFC
-fi
-
-if test -n "$SAVE_MPILIB"; then
-MPILIB=$SAVE_MPILIB
-fi
-
-if test -n "$SAVE_MPIINC"; then
-MPIINC=$SAVE_MPIINC
-fi
-
-if test -n "$SAVE_CFLAGS"; then
-CFLAGS="$SAVE_CFLAGS ${CFLAGS}"
-fi
-
-if test -n "$SAVE_FFLAGS"; then
-FFLAGS=$SAVE_FFLAGS
-fi
-
-if test -n "$SAVE_MPIROOT"; then
-MPIROOT=$SAVE_MPIROOT
-fi
-
-if test -n "$SAVE_HDF5ROOT"; then
-HDF5ROOT=$SAVE_HDF5ROOT
-fi
-
-if test -n "$SAVE_LDFLAGS"; then
-LDFLAGS=$SAVE_LDFLAGS
-fi
 
 ###############################################################################
 ############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
