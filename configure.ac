@@ -154,10 +154,8 @@ if test -z "$CC" && test -n "$MPICC"; then
   CC="$MPICC"
 fi
 AC_PROG_CC([cc gcc pgcc pathcc icc cc_r])
-AX_MPI([AC_MSG_WARN([good, we've got mpi])],
+AX_MPI([CC="$MPICC"; LIBS="$MPILIBS $LIBS"],
        [AC_MSG_ERROR([MPI required!])])
-CC="$MPICC"
-LIBS="$MPILIBS $LIBS"
 
 # AC_PROG_CC doesn't pick up cc_r in Bassi. The following AC_PATH_PROGS
 # is the fix.
