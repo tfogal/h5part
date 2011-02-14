@@ -53,11 +53,11 @@ AC_ARG_ENABLE(
 	[Compile h5part tools [default=no]])],
         [USE_TOOLS=$enableval])
 
-AC_ARG_WITH(
-	[mpipath],
-	[AC_HELP_STRING([--with-mpipath],
-	[path to MPI installation [default=""]])],
-        [MPIPATH=$withval], [MPIPATH=""])
+dnl AC_ARG_WITH(
+dnl 	[mpipath],
+dnl 	[AC_HELP_STRING([--with-mpipath],
+dnl 	[path to MPI installation [default=""]])],
+dnl         [MPIPATH=$withval], [MPIPATH=""])
 
 AC_ARG_WITH(
   [hdf5],
@@ -150,7 +150,14 @@ fi
 # If CC is not already set in the environment, check for gcc and cc, then
 # for other C compilers. 
 # Set output variable CC to the name of the compiler found.
-AC_PROG_CC(pgcc pathcc icc cc_r gcc cc)
+if test -z "$CC" && test -n "$MPICC"; then
+  CC="$MPICC"
+fi
+AC_PROG_CC([cc gcc pgcc pathcc icc cc_r])
+AX_MPI([AC_MSG_WARN([good, we've got mpi])],
+       [AC_MSG_ERROR([MPI required!])])
+CC="$MPICC"
+LIBS="$MPILIBS $LIBS"
 
 # AC_PROG_CC doesn't pick up cc_r in Bassi. The following AC_PATH_PROGS
 # is the fix.
@@ -290,133 +297,6 @@ if test "X$USE_FORTRAN" = "Xyes"; then
     fi
 else
     AC_MSG_RESULT([no])
-fi
-
-
-######################## parallel interface enabled ###########################
-AC_MSG_CHECKING([if parallel interface enabled])
-if test "X$USE_PARALLEL" = "Xyes"; then
-    AC_MSG_RESULT([yes])
-
-    CFLAGS="${CFLAGS} -DPARALLEL_IO -DH5_HAVE_PARALLEL -DMPICH_IGNORE_CXX_SEEK"
-
-    AC_MSG_CHECKING([if we can compile MPI code without setting flags])
-    AC_TRY_LINK([#include "mpi.h"], [
-        MPI_Comm comm;
-	int n;
-	MPI_Comm_size( comm, &n ); ], 
-	[echo 'yes'; r='yes'], [echo "no"; r='no'] )
-
-    if test "X$r" = "Xno"; then
-        AC_PATH_PROGS([MPICC], [mpicc mpcc_r], [], [$PATH])
-        AC_PATH_PROGS([MPICXX], [mpicxx mpcc_r], [], [$PATH])
-        if test -z "$MPICC" -o -z "$MPICXX"; then 
-            AC_MSG_CHECKING([for MPI root ])
-            AC_MSG_RESULT([])
-            if test -n "$MPIROOT"; then
-                P=${MPIROOT}
-            elif test -n "$MPIHOME"; then
-                P=${MPIHOME}
-            elif test -n "$MPIPATH"; then
-                P=${MPIPATH}
-            else
-                P=''
-                P="$P /usr"
-                P="$P /usr/local"
-                P="$P /usr/local/mpi"
-                P="$P /usr/local/packages/mpi"
-                P="$P /usr/local/mpich2"
-                P="$P /usr/local/mpich"
-                P="$P /opt/xt-mpt/default/mpich2-64/P2"
-            fi
-            PATH_Search MPIROOT "$P" include/mpi.h
-            if test ! -n "$MPIROOT"; then
-		AC_MSG_ERROR([Cannot determine MPI root!!!])
-                exit 1
-            fi
-
-	    if test -e "${MPIROOT}/bin/mpicc"; then
-	       MPICC=${MPIROOT}/bin/mpicc
-	    fi
-
-	    if test -e "${MPIROOT}/bin/mpicxx"; then
-	       MPICXX=${MPIROOT}/bin/mpicxx
-	    fi
-	fi
-
-        if test -z "$MPICC" -o -z "$MPICXX"; then 
-            MPIINC="${MPIINC} -I${MPIROOT}/include"
-            FFLAGS="${FFLAGS} -I${MPIROOT}/include"
-            AC_MSG_CHECKING([for name of MPI lib ])
-            if test -e ${MPIROOT}/lib/libmpi.a; then
-                MPILIB="-L${MPIROOT}/lib -lmpi"
-            elif test -e ${MPIROOT}/lib/libmpi.so; then
-                MPILIB="-L${MPIROOT}/lib -lmpi"
-            elif test -e ${MPIROOT}/lib/libmpich.a; then
-                MPILIB="-L${MPIROOT}/lib -lmpich"
-            elif test -e ${MPIROOT}/lib/libmpich.so; then
-                MPILIB="-L${MPIROOT}/lib -lmpich"
-            else
-                AC_MSG_RESULT([not found])
-                exit 1
-            fi
-            AC_MSG_RESULT([${MPILIB}])
-	fi
-
-        if test -n "$MPICC"; then
-	    CC=${MPICC}
-        fi 
-  
-        if test -n "$MPICXX"; then
-	    CXX=${MPICXX}
-        fi
-    fi
-
-    H5P_LIB_NAME="-lpH5Part"
-    MTARGET="libpH5Part.a"
-    TTARGET="test"
-
-
-    # parallel + fortran
-    if test "X$USE_FORTRAN" = "Xyes"; then
-        AC_PATH_PROGS([MPIFC], [mpxlf_r mpif90], [], [$PATH])
-
-        FFLAGS="${FFLAGS} -DPARALLEL_IO"
-
-	if test -z "${MPIFC}" ; then
-	    if test -e "${MPIROOT}/bin/mpif90"; then
-	       MPIFC=${MPIROOT}/bin/mpif90
-	    fi
-	fi
- 
-        # if MPIFC empty
-        if test ! -n "$MPIFC"; then
-            AC_MSG_CHECKING([ No MPIFC detected. Setting MPIFC to FC.])
-            MPIFC=$FC
-            echo "MPIFC =  $MPIFC ..."
-        fi 
-
-	if test -n "$MPIFC"; then
-	    FC=${MPIFC}
-	fi
- 
-        H5P_LIB_NAME="-lpH5PartF"
-        MTARGET="${MTARGET} libpH5PartF.a"
-        TTARGET="${TTARGET} testf"
-    fi
-
-else  # --enable-parallel=no
-    AC_MSG_RESULT([no])
-
-    H5P_LIB_NAME="-lH5Part"
-    MTARGET="libH5Part.la"
-    TTARGET="test"
-
-    if test "X$USE_FORTRAN" = "Xyes"; then
-        H5P_LIB_NAME="-lH5PartF"
-        MTARGET="${MTARGET} libH5PartF.a"
-        TTARGET="${TTARGET} testf"
-    fi
 fi
 
 AC_MSG_CHECKING([whether tools are enabled])
