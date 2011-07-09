@@ -23,7 +23,7 @@ EXTRA_DIST =		TestUnderscoreC.c \
 nodist_include_HEADERS = H5PartF.h @UNDERSCORE_H@
 
 # We want libH5PartF.la in here too, but do not have F77 support yet.
-lib_LTLIBRARIES = libH5Part.la
+lib_LTLIBRARIES = libH5Part.la libH5PartF.la
 
 
 # Header files that I wish to install in $(prefix)/include
