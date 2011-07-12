@@ -40,6 +40,7 @@ AC_ARG_ENABLE(
         [AC_HELP_STRING([--enable-fortran],
 	[Compile the Fortran interface [default=no]])],
         [USE_FORTRAN=$enableval])
+AM_CONDITIONAL(ENABLE_FORTRAN, test "x${USE_FORTRAN}" = "xyes")
 
 AC_ARG_ENABLE(
 	[parallel],

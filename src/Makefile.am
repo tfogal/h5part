@@ -22,9 +22,10 @@ EXTRA_DIST =		TestUnderscoreC.c \
 # Files that I don't want to include in the dist tar ball
 nodist_include_HEADERS = H5PartF.h @UNDERSCORE_H@
 
-# We want libH5PartF.la in here too, but do not have F77 support yet.
-lib_LTLIBRARIES = libH5Part.la libH5PartF.la
-
+lib_LTLIBRARIES = libH5Part.la
+if ENABLE_FORTRAN
+  lib_LTLIBRARIES += libH5PartF.la
+endif
 
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS = 	H5Part.h \
