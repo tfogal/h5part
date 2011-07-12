@@ -47,6 +47,8 @@ AC_ARG_ENABLE(
         [AC_HELP_STRING([--enable-parallel],
 	[Compile the MPI/IO interface [default=no]])],
         [USE_PARALLEL=$enableval])
+AC_DEFINE_UNQUOTED(PARALLEL_IO, test "x${USE_PARALLEL}" = "xyes",
+                   Add in support for parallel IO features.)
 
 AC_ARG_ENABLE(
 	[tools],
