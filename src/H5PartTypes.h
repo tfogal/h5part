@@ -19,10 +19,10 @@ __attribute__ ((format (printf, 3, 4)))
 #endif
  ;
 
-#ifndef PARALLEL_IO
-#if 0
-typedef unsigned long		MPI_Comm;
-#endif
+#ifdef PARALLEL_IO
+# include <mpi.h>
+#else
+  typedef unsigned long MPI_Comm;
 #endif
 
 #define H5PART_STEPNAME_LEN	64
